@@ -1,3 +1,69 @@
+# Reflexión y Análisis – Arquitectura MVC en Node.js
+
+## Introducción
+
+Durante el desarrollo de esta guía se trabajó con la arquitectura **MVC (Modelo – Vista – Controlador)** utilizando **Node.js** y **Express.js**. El propósito fue comprender cómo se organiza un proyecto backend de forma profesional, separando las responsabilidades entre rutas, controladores y modelos para facilitar el mantenimiento y crecimiento de la aplicación.
+
+---
+
+# Actividad 1
+
+## 1. ¿Qué problemas podrían aparecer si toda la lógica del sistema se mantiene directamente dentro de las rutas?
+
+Si toda la lógica se desarrolla dentro de las rutas, el código se vuelve desordenado y difícil de mantener. Además, aumenta la duplicación de funciones, es más complicado encontrar errores y resulta difícil agregar nuevas funcionalidades cuando el proyecto crece.
+
+---
+
+## 2. ¿Cómo podría afectar esto el trabajo cuando varias personas desarrollan el mismo proyecto?
+
+Cuando varias personas trabajan sobre un mismo archivo con toda la lógica mezclada, es más probable que ocurran conflictos al integrar cambios. También se dificulta comprender el código de otros desarrolladores y disminuye la productividad del equipo.
+
+---
+
+## 3. ¿Por qué crees que en proyectos grandes se busca separar responsabilidades dentro del código?
+
+Porque permite organizar mejor el proyecto, hacer el código más limpio y facilitar el mantenimiento. Cada componente cumple una función específica, lo que ayuda a desarrollar nuevas funcionalidades sin afectar el resto del sistema.
+
+---
+
+## 4. ¿Qué ventajas podría tener dividir el backend en componentes especializados como rutas, controladores y modelos?
+
+Las principales ventajas son:
+
+* Mejor organización del proyecto.
+* Código más limpio y fácil de entender.
+* Mayor reutilización de funciones.
+* Facilita el trabajo colaborativo.
+* Simplifica el mantenimiento.
+* Permite escalar la aplicación con mayor facilidad.
+* Hace más sencilla la integración con bases de datos y el frontend.
+
+---
+
+# Actividad 2
+
+## ¿Qué componente se encarga de recibir la petición HTTP y dirigirla al controlador?
+
+Las **rutas (Routes)** son las encargadas de recibir la petición HTTP y enviarla al controlador correspondiente según el endpoint solicitado.
+
+---
+
+## ¿Qué componente se encarga de comunicarse con la base de datos?
+
+El **modelo (Model)** es el componente encargado de gestionar los datos y comunicarse con la base de datos o con la fuente de información utilizada por la aplicación.
+
+---
+
+## ¿Qué componente envía finalmente la respuesta HTTP al cliente?
+
+El **controlador (Controller)** procesa la información recibida del modelo y construye la respuesta HTTP que será enviada al cliente.
+
+---
+
+# Conclusión
+
+La arquitectura **MVC** permite desarrollar aplicaciones backend más organizadas, mantenibles y escalables. Al separar las responsabilidades entre rutas, controladores y modelos, el código es más fácil de comprender, reutilizar y mantener. Esta estructura también facilita el trabajo en equipo y prepara la aplicación para futuras integraciones con bases de datos, autenticación y aplicaciones frontend.
+
 # Sistema PQRS con Node.js, Express y MVC
 
 Este proyecto es un sistema basico de PQRS: Peticiones, Quejas, Reclamos y Sugerencias.
