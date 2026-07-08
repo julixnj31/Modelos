@@ -1,42 +1,41 @@
-let pqrs = [
+let tareas = [
     {
         id: 1,
-        tipo: "Petición",
-        descripcion: "Necesito información"
+        titulo: "Estudiar JavaScript",
+        descripcion: "Repasar funciones y módulos"
     },
-
     {
         id: 2,
-        tipo: "Queja",
-        descripcion: "Servicio muy lento"
+        titulo: "Hacer ejercicio",
+        descripcion: "Caminar durante 30 minutos"
     },
     {
         id: 3,
-        tipo: "Reclamo",
-        descripcion: "No me gustó la comida"
+        titulo: "Comprar mercado",
+        descripcion: "Comprar arroz, leche y huevos"
     }
 ];
 
 export function obtenerTodas() {
-    return pqrs;
+    return tareas;
 }
 
 export function obtenerPorId(id) {
-    return pqrs.find(p => p.id == id);
+    return tareas.find(t => t.id == id);
 }
 
 export function crear(datos) {
-    pqrs.push(datos);
+    tareas.push(datos);
     return datos;
 }
 
 export function actualizar(id, datos) {
-    const indice = pqrs.findIndex(p => p.id == id);
-    pqrs[indice] = datos;
+    const indice = tareas.findIndex(t => t.id == id);
+    tareas[indice] = datos;
     return datos;
 }
 
 export function eliminar(id) {
-    pqrs = pqrs.filter(p => p.id != id);
-    return "PQRS eliminada";
+    tareas = tareas.filter(t => t.id != id);
+    return "Tarea eliminada";
 }

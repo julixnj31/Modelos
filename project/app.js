@@ -11,7 +11,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.status(200).json({
         mensaje: "¡Bienvenido a la API del Sistema PQRS!",
-        autor: "Oscar Mauricio Solano",
+        autor: "yoinel martinez",
         version: "1.0",
         rutas: {
             obtenerTodas: "/pqrs",
