@@ -1,7 +1,7 @@
 {
-  "name": "sistema-pqrs-mvc",
-  "version": "1.0.0",
-  "description": "Sistema basico de PQRS en Node.js con Express y MVC",
+  "name": "sistema-tareas-usuarios-mvc",
+  "version": "2.0.0",
+  "description": "Sistema de gestion de tareas y usuarios en Node.js con Express, MVC, JWT y frontend estatico",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -10,11 +10,8 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "express": "^4.22.2"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.6.0",
-    "globals": "^17.7.0"
+    "bcryptjs": "^3.0.3",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3"
   }
 }

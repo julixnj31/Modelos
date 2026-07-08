@@ -1,0 +1,30 @@
+<meta charset="UTF-8" />
+<title>Sistema de Tareas - Mis Tareas</title>
+<link rel="stylesheet" href="/css/style.css" />
+
+<header>
+  <h1>Mis Tareas</h1>
+  <button id="logout-btn">Cerrar sesion</button>
+</header>
+
+<main>
+  <div class="card">
+    <h2 id="saludo"></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Titulo</th>
+          <th>Descripcion</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Accion</th>
+        </tr>
+      </thead>
+      <tbody id="tasks-body"></tbody>
+    </table>
+    <p id="empty-message" style="display:none;color:#616e7c;">No tienes tareas asignadas.</p>
+  </div>
+</main>
+
+<script src="/js/api.js"></script>
+<script src="/js/user.js"></script>

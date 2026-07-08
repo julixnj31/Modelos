@@ -64,11 +64,11 @@ El **controlador (Controller)** procesa la información recibida del modelo y co
 
 La arquitectura **MVC** permite desarrollar aplicaciones backend más organizadas, mantenibles y escalables. Al separar las responsabilidades entre rutas, controladores y modelos, el código es más fácil de comprender, reutilizar y mantener. Esta estructura también facilita el trabajo en equipo y prepara la aplicación para futuras integraciones con bases de datos, autenticación y aplicaciones frontend.
 
-# Sistema PQRS con Node.js, Express y MVC
+# Sistema de Gestion de Tareas y Usuarios con Node.js, Express y MVC
 
-Este proyecto es un sistema basico de PQRS: Peticiones, Quejas, Reclamos y Sugerencias.
+Este proyecto evoluciono desde un CRUD basico de PQRS hacia un sistema de **gestion de tareas con usuarios**, con autenticacion JWT, roles (Admin/Usuario), asignacion de tareas a multiples usuarios, filtros, dashboard y un frontend estatico.
 
-La idea es practicar la arquitectura MVC usando Node.js y Express. No usa una base de datos real. Los datos se guardan temporalmente en un arreglo dentro del modelo.
+No usa una base de datos real. Los datos se guardan temporalmente en arreglos dentro de los modelos (se pierden al reiniciar el servidor).
 
 ## Estructura del proyecto
 
@@ -79,234 +79,144 @@ Modelos/
 +-- package.json
 +-- package-lock.json
 |
++-- middleware/
+|   +-- authMiddleware.js
+|
 +-- controllers/
-|   +-- pqrsController.js
+|   +-- authController.js
+|   +-- userController.js
+|   +-- taskController.js
+|   +-- dashboardController.js
 |
 +-- models/
-|   +-- pqrsModel.js
+|   +-- userModel.js
+|   +-- taskModel.js
 |
 +-- routes/
-    +-- pqrsRoutes.js
+|   +-- authRoutes.js
+|   +-- userRoutes.js
+|   +-- taskRoutes.js
+|   +-- dashboardRoutes.js
+|
++-- public/
+    +-- index.html      (login)
+    +-- admin.html      (panel administrador)
+    +-- user.html        (panel de usuario)
+    +-- css/style.css
+    +-- js/api.js, login.js, admin.js, user.js
 ```
 
 ## Como funciona el MVC
 
-El flujo del proyecto es este:
-
 ```txt
-Cliente HTTP -> Ruta -> Controlador -> Modelo -> Controlador -> Cliente HTTP
+Cliente HTTP -> Ruta -> Middleware de auth -> Controlador -> Modelo -> Controlador -> Cliente HTTP
 ```
 
-Explicado mas sencillo:
-
-1. El cliente hace una peticion, por ejemplo `GET /api/pqrs`.
-2. La ruta recibe esa peticion.
+1. El cliente hace una peticion con su token JWT, por ejemplo `GET /api/tasks`.
+2. La ruta valida el token y el rol (`middleware/authMiddleware.js`).
 3. La ruta llama al controlador.
 4. El controlador llama al modelo.
-5. El modelo trabaja con los datos y devuelve el resultado.
+5. El modelo trabaja con los datos en memoria y devuelve el resultado.
 6. El controlador responde al cliente con JSON.
 
-## Que hace cada archivo
-
-### `app.js`
-
-Es el archivo principal.
-
-Aqui se configura Express, se activa el uso de JSON y se conectan las rutas de PQRS.
-
-Tambien levanta el servidor. Primero intenta usar el puerto `3000`. Si ese puerto esta ocupado, prueba con `3001`, luego `3002`, y asi.
-
-### `routes/pqrsRoutes.js`
-
-Este archivo contiene las rutas.
-
-No tiene logica de negocio. Solo dice que controlador se ejecuta segun el metodo HTTP:
-
-```txt
-GET    /api/pqrs
-GET    /api/pqrs/:id
-POST   /api/pqrs
-PUT    /api/pqrs/:id
-DELETE /api/pqrs/:id
-```
-
-### `controllers/pqrsController.js`
-
-Este archivo recibe las peticiones y responde al cliente.
-
-Cada metodo usa `async/await` y tiene `try/catch` para manejar errores.
-
-El controlador es el unico que usa `res.status(...).json(...)`.
-
-### `models/pqrsModel.js`
-
-Este archivo simula la base de datos usando un arreglo.
-
-Aqui estan las funciones para:
-
-- Obtener todas las PQRS.
-- Obtener una PQRS por ID.
-- Crear una PQRS.
-- Actualizar una PQRS.
-- Eliminar una PQRS.
-
-Importante: el modelo no responde al cliente. Solo devuelve datos al controlador.
-
 ## Instalacion
-
-Primero instala las dependencias:
 
 ```bash
 npm install
 ```
 
-Si estas usando PowerShell y te sale un error con `npm`, puedes usar:
-
-```bash
-npm.cmd install
-```
+Si PowerShell da error con `npm`, usa `npm.cmd install`.
 
 ## Ejecutar el proyecto
-
-Para levantar el servidor usa:
 
 ```bash
 npm run dev
 ```
 
-Si PowerShell bloquea el comando, usa:
+El servidor intenta el puerto `3000` y si esta ocupado prueba con el siguiente (`3001`, `3002`, ...).
 
-```bash
-npm.cmd run dev
-```
+Abre `http://localhost:3000` en el navegador para ver el login del frontend.
 
-Cuando el servidor inicie, veras algo parecido a esto:
+## Usuarios de prueba (seed)
 
-```txt
-Servidor corriendo en http://localhost:3000
-```
+| Rol | Email | Password |
+|---|---|---|
+| Admin | admin@demo.com | admin123 |
+| Usuario | juan@demo.com | juan123 |
+| Usuario | maria@demo.com | maria123 |
 
-Si el puerto `3000` esta ocupado, puede salir algo asi:
+## Rutas de la API
 
-```txt
-El puerto 3000 esta ocupado. Probando con 3001...
-Servidor corriendo en http://localhost:3001
-```
+Todas las rutas (excepto `/api/auth/login` y `/api/health`) requieren el header `Authorization: Bearer <token>` obtenido en el login.
 
-En ese caso debes usar el puerto que salga en la consola.
-
-## Rutas disponibles
-
-### Probar si el servidor funciona
+### Auth
 
 ```txt
-GET /
+POST /api/auth/login
 ```
 
-Respuesta esperada:
+Cuerpo JSON: `{ "email": "...", "password": "..." }`. Responde `{ token, user }`.
 
-```json
-{
-  "message": "Sistema PQRS funcionando"
-}
-```
-
-### Obtener todas las PQRS
+### Usuarios (solo Admin, salvo lo indicado)
 
 ```txt
-GET /api/pqrs
+POST   /api/users
+GET    /api/users
+GET    /api/users/:id
+PUT    /api/users/:id
+DELETE /api/users/:id
+PATCH  /api/users/:id/status         body: { "status": "active" | "inactive" }
+GET    /api/users/:userId/tasks      (Admin o el propio usuario)
 ```
 
-Ejemplo:
-
-```bash
-http://localhost:3000/api/pqrs
-```
-
-### Obtener una PQRS por ID
+### Tareas
 
 ```txt
-GET /api/pqrs/1
+POST   /api/tasks                              (Admin)
+GET    /api/tasks                              (Admin)
+GET    /api/tasks/filter?status=&priority=&userId=   (Admin)
+GET    /api/tasks/:id                          (Admin o usuario asignado)
+PUT    /api/tasks/:id                          (Admin)
+DELETE /api/tasks/:id                          (Admin)
+PATCH  /api/tasks/:id/status                   (Admin o usuario asignado) body: { "status": "pendiente" | "en_progreso" | "completada" }
+POST   /api/tasks/:taskId/assign               (Admin) body: { "userIds": [1, 2] }
+GET    /api/tasks/:taskId/users                (Admin)
+DELETE /api/tasks/:taskId/users/:userId        (Admin)
 ```
 
-### Crear una PQRS
+### Dashboard
 
 ```txt
-POST /api/pqrs
+GET /api/dashboard   (Admin) -> totales de usuarios/tareas, conteo por status/prioridad, tareas por usuario
 ```
 
-Cuerpo JSON:
+## Frontend
 
-```json
-{
-  "tipo": "Sugerencia",
-  "descripcion": "Seria bueno tener atencion por chat.",
-  "estado": "Pendiente"
-}
-```
-
-### Actualizar una PQRS
-
-```txt
-PUT /api/pqrs/1
-```
-
-Cuerpo JSON:
-
-```json
-{
-  "estado": "Resuelta"
-}
-```
-
-### Eliminar una PQRS
-
-```txt
-DELETE /api/pqrs/1
-```
-
-## Probar desde Thunder Client o Postman
-
-Puedes probar el proyecto usando Thunder Client en VS Code o Postman.
-
-Ejemplo para crear una PQRS:
-
-1. Selecciona el metodo `POST`.
-2. Usa esta URL:
-
-```txt
-http://localhost:3000/api/pqrs
-```
-
-3. En el body selecciona `JSON`.
-4. Escribe:
-
-```json
-{
-  "tipo": "Queja",
-  "descripcion": "La atencion fue demorada.",
-  "estado": "Pendiente"
-}
-```
-
-5. Envia la peticion.
-
-Recuerda cambiar `3000` por `3001` u otro puerto si la consola te dice que el servidor inicio en otro puerto.
+- `index.html`: login, guarda el token en `localStorage` y redirige segun el rol.
+- `admin.html`: dashboard con estadisticas, administracion de usuarios (crear/editar/eliminar/activar-desactivar) y administracion de tareas (crear con seleccion multiple de usuarios via checkboxes, filtros por status/prioridad/usuario, cambiar estado, quitar un usuario asignado, eliminar tarea).
+- `user.html`: lista de tareas asignadas al usuario logueado, con boton para marcarlas como completadas.
 
 ## Datos importantes
 
-- Los datos se pierden cuando se apaga el servidor.
-- No se usa base de datos real.
-- El modelo solo maneja datos.
-- El controlador responde al cliente.
-- Las rutas no tienen logica de negocio.
+- Los datos se pierden cuando se apaga el servidor (todo en memoria).
+- Las contrasenas se guardan hasheadas con `bcryptjs`.
+- La autenticacion usa JWT (`jsonwebtoken`), valido por 8 horas.
+- El modelo solo maneja datos, el controlador responde al cliente, las rutas no tienen logica de negocio.
 
 ## Comandos utiles
 
-Instalar dependencias:
+```bash
+npm install     # instalar dependencias
+npm run dev     # ejecutar en modo desarrollo
+npm start       # ejecutar normal
+```
+
+## Comandos útiles
 
 ```bash
-npm install
+npm install     # Instalar dependencias
+npm run dev     # Ejecutar en modo desarrollo
+npm start       # Ejecutar normalmente
 ```
 
 Ejecutar en modo desarrollo:
@@ -323,9 +233,10 @@ npm start
 
 Detener el servidor:
 
-```txt
+```text
 Ctrl + C
 ```
+
 ## Verificación de código con ESLint
 
 Para verificar el código ejecuta:
