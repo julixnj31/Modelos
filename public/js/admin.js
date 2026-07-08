@@ -162,19 +162,30 @@ const taskError = document.getElementById("task-error");
 
 const poblarSelectsDeUsuarios = () => {
   const checkboxesContainer = document.getElementById("task-users-checkboxes");
+
   checkboxesContainer.innerHTML = usersCache
-    .map((user) => `
-      <label>
-        <input type="checkbox" value="${user.id}" />
-        ${user.name} (${user.email})
-      </label>
-    `)
+    .map(
+      (user) => `
+        <label>
+          <input type="checkbox" value="${user.id}" />
+          ${user.name} (${user.email})
+        </label>
+      `
+    )
     .join("");
 
   const filterSelect = document.getElementById("filter-user");
+
   filterSelect.innerHTML =
-    '<option value="">Todos</option>' +
-    usersCache.map((user) => `<option value="${user.id}">${user.name}</option>`).join("");
+    `
+      <option value="">Todos</option>
+    ` +
+    usersCache
+      .map(
+        (user) =>
+          `<option value="${user.id}">${user.name}</option>`
+      )
+      .join("");
 };
 
 const nombreUsuario = (id) => {

@@ -3,7 +3,8 @@ const taskModel = require("../models/taskModel");
 
 // Nunca se debe devolver el password al cliente.
 const sinPassword = (user) => {
-  const { password, ...resto } = user;
+  const resto = { ...user };
+  delete resto.password;
   return resto;
 };
 

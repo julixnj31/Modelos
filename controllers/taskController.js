@@ -147,11 +147,13 @@ const obtenerUsuariosAsignados = async (req, res) => {
     }
 
     const usuarios = await userModel.obtenerTodas();
+
     const asignados = usuarios
       .filter((user) => idsAsignados.includes(user.id))
-      .map(({ password, ...resto }) => resto);
+      .map(({ password: _, ...resto }) => resto);
 
     res.status(200).json(asignados);
+
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los usuarios asignados" });
   }

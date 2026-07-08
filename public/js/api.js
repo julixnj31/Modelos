@@ -1,7 +1,9 @@
 // Wrapper de fetch que agrega el token JWT y maneja sesion expirada.
+
 const API_BASE = "/api";
 
 const getToken = () => localStorage.getItem("token");
+
 const getUser = () => JSON.parse(localStorage.getItem("user") || "null");
 
 const cerrarSesion = () => {
@@ -17,11 +19,15 @@ const apiFetch = async (endpoint, options = {}) => {
   };
 
   const token = getToken();
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers
+  });
 
   if (response.status === 401) {
     cerrarSesion();
@@ -47,9 +53,17 @@ const requireSession = (rolesPermitidos) => {
   }
 
   if (rolesPermitidos && !rolesPermitidos.includes(user.role)) {
-    window.location.href = user.role === "admin" ? "/admin.html" : "/user.html";
+    window.location.href =
+      user.role === "admin" ? "/admin.html" : "/user.html";
+
     return null;
   }
 
   return user;
 };
+
+
+// Hacer disponibles las funciones para los demás archivos JS
+window.apiFetch = apiFetch;
+window.requireSession = requireSession;
+window.cerrarSesion = cerrarSesion;

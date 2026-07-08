@@ -13,5 +13,10 @@
     "bcryptjs": "^3.0.3",
     "express": "^4.22.2",
     "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0"
   }
 }
