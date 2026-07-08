@@ -1,1 +1,24 @@
+# Dependencias
 node_modules/
+
+# Variables de entorno
+.env
+
+# Cobertura
+coverage/
+
+# Archivos de registro
+logs/
+*.log
+npm-debug.log*
+
+# Archivos temporales
+temp/
+.tmp/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuración de VS Code
+.vscode/

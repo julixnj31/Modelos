@@ -326,3 +326,16 @@ Detener el servidor:
 ```txt
 Ctrl + C
 ```
+## Verificación de código con ESLint
+
+Para verificar el código ejecuta:
+
+```bash
+npm run lint
+```
+
+Para corregir automáticamente los problemas que ESLint pueda solucionar:
+
+```bash
+npm run lint:fix
+```

@@ -5,6 +5,7 @@ const obtenerTodas = async (req, res) => {
     const pqrs = await pqrsModel.obtenerTodas();
     res.status(200).json(pqrs);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al obtener las PQRS" });
   }
 };
@@ -19,6 +20,7 @@ const obtenerPorId = async (req, res) => {
 
     res.status(200).json(pqrs);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al obtener la PQRS" });
   }
 };
@@ -28,6 +30,7 @@ const crear = async (req, res) => {
     const nuevaPqrs = await pqrsModel.crear(req.body);
     res.status(201).json(nuevaPqrs);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al crear la PQRS" });
   }
 };
@@ -42,6 +45,7 @@ const actualizar = async (req, res) => {
 
     res.status(200).json(pqrsActualizada);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al actualizar la PQRS" });
   }
 };
@@ -59,6 +63,7 @@ const eliminar = async (req, res) => {
       data: pqrsEliminada
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error al eliminar la PQRS" });
   }
 };
