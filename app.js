@@ -27,10 +27,9 @@ app.use("/api/dashboard", dashboardRoutes);
 // Intenta levantar el servidor en un puerto.
 // Si el puerto esta ocupado, prueba con el siguiente.
 const iniciarServidor = (puerto) => {
-  const server = app.listen(puerto, () => {
-    console.log(`Servidor corriendo en http://localhost:${puerto}`);
-  });
-
+const server = app.listen(puerto, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en http://localhost:${puerto}`);
+});
   server.on("error", (error) => {
     if (error.code === "EADDRINUSE") {
       console.log(`El puerto ${puerto} esta ocupado. Probando con ${puerto + 1}...`);
