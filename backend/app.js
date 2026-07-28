@@ -2,11 +2,11 @@ import express from "express";
 import cors from "cors";
 import productRouter from "./routes/product.routes.js";
 import categoryRouter from "./routes/category.routes.js";
-import userRouter from "./routes/user.routes.js";
-import supplierRouter from "./routes/supplier.routes.js";
-import clientRouter from "./routes/client.routes.js";
-import saleRouter from "./routes/sale.routes.js";
-import inventoryRouter from "./routes/inventory.routes.js";
+import usuariosRouter from "./routes/usuarios.routes.js";
+import proveedoresRouter from "./routes/proveedores.routes.js";
+import clientesRouter from "./routes/clientes.routes.js";
+import ventasRouter from "./routes/ventas.routes.js";
+import inventarioRouter from "./routes/inventario.routes.js";
 
 const app = express();
 
@@ -23,13 +23,13 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use("/products", productRouter);
-app.use("/categories", categoryRouter);
-app.use("/users", userRouter);
-app.use("/suppliers", supplierRouter);
-app.use("/clients", clientRouter);
-app.use("/sales", saleRouter);
-app.use("/inventory", inventoryRouter);
+app.use("/productos", productRouter);
+app.use("/categorias", categoryRouter);
+app.use("/usuarios", usuariosRouter);
+app.use("/proveedores", proveedoresRouter);
+app.use("/clientes", clientesRouter);
+app.use("/ventas", ventasRouter);
+app.use("/inventario", inventarioRouter);
 
 const PORT = 3000;
 

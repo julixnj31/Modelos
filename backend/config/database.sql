@@ -1,127 +1,109 @@
--- ============================================
--- SCRIPT COMPLETO - Base de Datos inventario_adso
--- ============================================
-
 CREATE DATABASE IF NOT EXISTS inventario_adso;
 USE inventario_adso;
 
--- 1. USUARIOS
-CREATE TABLE users (
+CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ENUM('admin','vendedor','bodeguero') DEFAULT 'vendedor',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    rol ENUM('admin','vendedor','bodeguero') DEFAULT 'vendedor',
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2. CATEGORÍAS
-CREATE TABLE categories (
+CREATE TABLE categorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    nombre VARCHAR(100) NOT NULL,
+    creado_por INT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
--- 3. PROVEEDORES
-CREATE TABLE suppliers (
+CREATE TABLE proveedores (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    contact VARCHAR(100),
-    phone VARCHAR(20),
+    nombre VARCHAR(150) NOT NULL,
+    contacto VARCHAR(100),
+    telefono VARCHAR(20),
     email VARCHAR(100),
-    address TEXT,
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    direccion TEXT,
+    creado_por INT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
--- 4. CLIENTES
-CREATE TABLE clients (
+CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    document VARCHAR(20) UNIQUE,
-    phone VARCHAR(20),
+    nombre VARCHAR(150) NOT NULL,
+    documento VARCHAR(20) UNIQUE,
+    telefono VARCHAR(20),
     email VARCHAR(100),
-    address TEXT,
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    direccion TEXT,
+    creado_por INT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
--- 5. PRODUCTOS
-CREATE TABLE products (
+CREATE TABLE productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
     stock INT DEFAULT 0,
-    min_stock INT DEFAULT 5,
-    categoryId INT NOT NULL,
-    supplierId INT,
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE RESTRICT,
-    FOREIGN KEY (supplierId) REFERENCES suppliers(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    stock_minimo INT DEFAULT 5,
+    categoria_id INT NOT NULL,
+    proveedor_id INT,
+    creado_por INT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT,
+    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id) ON DELETE SET NULL,
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
--- 6. VENTAS
-CREATE TABLE sales (
+CREATE TABLE ventas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    clientId INT,
-    userId INT NOT NULL,
+    cliente_id INT,
+    usuario_id INT NOT NULL,
     total DECIMAL(12,2) DEFAULT 0,
-    status ENUM('completada','cancelada','pendiente') DEFAULT 'completada',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE SET NULL,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE RESTRICT
+    estado ENUM('completada','cancelada','pendiente') DEFAULT 'completada',
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT
 );
 
--- 7. DETALLE DE VENTAS
-CREATE TABLE sale_items (
+CREATE TABLE detalle_ventas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    saleId INT NOT NULL,
-    productId INT NOT NULL,
-    quantity INT NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL,
-    subtotal DECIMAL(12,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
-    FOREIGN KEY (saleId) REFERENCES sales(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE RESTRICT
+    venta_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(12,2) GENERATED ALWAYS AS (cantidad * precio_unitario) STORED,
+    FOREIGN KEY (venta_id) REFERENCES ventas(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT
 );
 
--- 8. MOVIMIENTOS DE INVENTARIO
-CREATE TABLE inventory_movements (
+CREATE TABLE movimientos_inventario (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    productId INT NOT NULL,
-    userId INT NOT NULL,
-    type ENUM('entrada','salida','ajuste') NOT NULL,
-    quantity INT NOT NULL,
-    previous_stock INT NOT NULL,
-    new_stock INT NOT NULL,
-    reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE RESTRICT,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE RESTRICT
+    producto_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    tipo ENUM('entrada','salida','ajuste') NOT NULL,
+    cantidad INT NOT NULL,
+    stock_anterior INT NOT NULL,
+    stock_nuevo INT NOT NULL,
+    motivo TEXT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT
 );
 
--- ============================================
--- DATOS INICIALES
--- ============================================
-
--- Usuarios
-INSERT INTO users (name, email, password, role) VALUES
+INSERT INTO usuarios (nombre, email, password, rol) VALUES
 ('Admin', 'admin@inventario.com', 'admin123', 'admin'),
 ('Vendedor', 'vendedor@inventario.com', 'vendedor123', 'vendedor'),
 ('Bodeguero', 'bodega@inventario.com', 'bodega123', 'bodeguero');
 
--- Categorías
-INSERT INTO categories (name, created_by) VALUES
+INSERT INTO categorias (nombre, creado_por) VALUES
 ('Computadoras y Laptops', 1),
 ('Periféricos y Accesorios', 1),
 ('Audio y Video', 1),
@@ -130,20 +112,17 @@ INSERT INTO categories (name, created_by) VALUES
 ('Redes y Conectividad', 1),
 ('Dispositivos Inteligentes', 1);
 
--- Proveedores
-INSERT INTO suppliers (name, contact, phone, email, created_by) VALUES
+INSERT INTO proveedores (nombre, contacto, telefono, email, creado_por) VALUES
 ('TecnoGlobal SAS', 'Carlos Pérez', '3001234567', 'carlos@tecnoglobal.com', 1),
 ('CompuParts Ltda', 'María García', '3107654321', 'maria@compuparts.com', 1),
 ('DistriRedes', 'Pedro López', '3209876543', 'pedro@distriredes.com', 1);
 
--- Clientes
-INSERT INTO clients (name, document, phone, email, created_by) VALUES
+INSERT INTO clientes (nombre, documento, telefono, email, creado_por) VALUES
 ('Juan Rodríguez', '1234567890', '3012345678', 'juan@gmail.com', 1),
 ('Ana Martínez', '9876543210', '3023456789', 'ana@outlook.com', 1),
 ('Carlos Gómez', '5678901234', '3034567890', 'carlos@yahoo.com', 1);
 
--- Productos
-INSERT INTO products (name, price, stock, min_stock, categoryId, supplierId, created_by) VALUES
+INSERT INTO productos (nombre, precio, stock, stock_minimo, categoria_id, proveedor_id, creado_por) VALUES
 ('Laptop Pro 15', 1200, 10, 3, 1, 1, 1),
 ('Mouse Inalámbrico', 25, 50, 10, 2, 2, 1),
 ('Teclado Mecánico RGB', 85, 30, 5, 2, 2, 1),

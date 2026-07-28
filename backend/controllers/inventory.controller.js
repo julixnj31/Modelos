@@ -5,8 +5,13 @@ const getAll = async (req, res) => {
   catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 const create = async (req, res) => {
-  try { const { productId, userId, type, quantity, reason } = req.body; if (!productId || !userId || !type || quantity === undefined) return res.status(400).json({ success: false, message: "productId, userId, type y quantity obligatorios", data: [], errors: [] }); const data = await InventoryModel.create({ productId, userId, type, quantity, reason }); res.status(201).json({ success: true, message: "Movimiento registrado", data, errors: [] }); }
-  catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
+  try {
+    const { producto_id, usuario_id, tipo, cantidad, motivo } = req.body;
+    if (!producto_id || !usuario_id || !tipo || cantidad === undefined)
+      return res.status(400).json({ success: false, message: "producto_id, usuario_id, tipo y cantidad obligatorios", data: [], errors: [] });
+    const data = await InventoryModel.create({ producto_id, usuario_id, tipo, cantidad, motivo });
+    res.status(201).json({ success: true, message: "Movimiento registrado", data, errors: [] });
+  } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
 export { getAll, create };

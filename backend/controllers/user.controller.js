@@ -9,7 +9,7 @@ const getById = async (req, res) => {
   catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 const create = async (req, res) => {
-  try { const { name, email, password, role } = req.body; if (!name || !email || !password) return res.status(400).json({ success: false, message: "Nombre, email y password obligatorios", data: [], errors: [] }); const data = await UserModel.create({ name, email, password, role }); res.status(201).json({ success: true, message: "Usuario creado", data, errors: [] }); }
+  try { const { nombre, email, password, rol } = req.body; if (!nombre || !email || !password) return res.status(400).json({ success: false, message: "Nombre, email y password obligatorios", data: [], errors: [] }); const data = await UserModel.create({ nombre, email, password, rol }); res.status(201).json({ success: true, message: "Usuario creado", data, errors: [] }); }
   catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 const update = async (req, res) => {

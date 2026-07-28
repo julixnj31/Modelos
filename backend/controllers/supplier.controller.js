@@ -9,7 +9,7 @@ const getById = async (req, res) => {
   catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 const create = async (req, res) => {
-  try { const { name } = req.body; if (!name) return res.status(400).json({ success: false, message: "Nombre obligatorio", data: [], errors: [] }); const data = await SupplierModel.create(req.body); res.status(201).json({ success: true, message: "Proveedor creado", data, errors: [] }); }
+  try { const { nombre } = req.body; if (!nombre) return res.status(400).json({ success: false, message: "Nombre obligatorio", data: [], errors: [] }); const data = await SupplierModel.create(req.body); res.status(201).json({ success: true, message: "Proveedor creado", data, errors: [] }); }
   catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 const update = async (req, res) => {

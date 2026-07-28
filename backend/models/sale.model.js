@@ -1,49 +1,47 @@
 import pool from "../config/db.js";
 
 const findByIdQuery = async (id) => {
-  const [sales] = await pool.query(
-    "SELECT s.*, c.name as clientName, u.name as userName FROM sales s LEFT JOIN clients c ON s.clientId = c.id LEFT JOIN users u ON s.userId = u.id WHERE s.id = ?", [id]);
-  if (sales.length === 0) return null;
+  const [ventas] = await pool.query(
+    "SELECT v.*, c.nombre as cliente_nombre, u.nombre as usuario_nombre FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id LEFT JOIN usuarios u ON v.usuario_id = u.id WHERE v.id = ?", [id]);
+  if (ventas.length === 0) return null;
   const [items] = await pool.query(
-    "SELECT si.*, p.name as productName FROM sale_items si LEFT JOIN products p ON si.productId = p.id WHERE si.saleId = ?", [id]);
-  return { ...sales[0], items };
+    "SELECT dv.*, p.nombre as producto_nombre FROM detalle_ventas dv LEFT JOIN productos p ON dv.producto_id = p.id WHERE dv.venta_id = ?", [id]);
+  return { ...ventas[0], items };
 };
 
 export const SaleModel = {
   findAll: async () => {
     const [rows] = await pool.query(
-      "SELECT s.*, c.name as clientName, u.name as userName FROM sales s LEFT JOIN clients c ON s.clientId = c.id LEFT JOIN users u ON s.userId = u.id ORDER BY s.id DESC"
+      "SELECT v.*, c.nombre as cliente_nombre, u.nombre as usuario_nombre FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id LEFT JOIN usuarios u ON v.usuario_id = u.id ORDER BY v.id DESC"
     );
     return rows;
   },
-
   findById: findByIdQuery,
-
-  create: async ({ clientId, userId, items }) => {
+  create: async ({ cliente_id, usuario_id, items }) => {
     const conn = await pool.getConnection();
     try {
       await conn.beginTransaction();
-      const [sale] = await conn.query("INSERT INTO sales (clientId, userId) VALUES (?, ?)", [clientId || null, userId]);
-      const saleId = sale.insertId;
+      const [venta] = await conn.query("INSERT INTO ventas (cliente_id, usuario_id) VALUES (?, ?)", [cliente_id || null, usuario_id]);
+      const ventaId = venta.insertId;
       let total = 0;
       for (const item of items) {
-        const [prod] = await conn.query("SELECT price, stock FROM products WHERE id = ? FOR UPDATE", [item.productId]);
-        if (!prod[0]) throw new Error(`Producto ${item.productId} no existe`);
-        if (prod[0].stock < item.quantity) throw new Error(`Stock insuficiente para producto ${item.productId}`);
+        const [prod] = await conn.query("SELECT precio, stock FROM productos WHERE id = ? FOR UPDATE", [item.producto_id]);
+        if (!prod[0]) throw new Error(`Producto ${item.producto_id} no existe`);
+        if (prod[0].stock < item.cantidad) throw new Error(`Stock insuficiente para producto ${item.producto_id}`);
         await conn.query(
-          "INSERT INTO sale_items (saleId, productId, quantity, unit_price) VALUES (?, ?, ?, ?)",
-          [saleId, item.productId, item.quantity, prod[0].price]
+          "INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)",
+          [ventaId, item.producto_id, item.cantidad, prod[0].precio]
         );
-        await conn.query("UPDATE products SET stock = stock - ? WHERE id = ?", [item.quantity, item.productId]);
+        await conn.query("UPDATE productos SET stock = stock - ? WHERE id = ?", [item.cantidad, item.producto_id]);
         await conn.query(
-          "INSERT INTO inventory_movements (productId, userId, type, quantity, previous_stock, new_stock, reason) VALUES (?, ?, 'salida', ?, ?, ?, ?)",
-          [item.productId, userId, item.quantity, prod[0].stock, prod[0].stock - item.quantity, `Venta #${saleId}`]
+          "INSERT INTO movimientos_inventario (producto_id, usuario_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo) VALUES (?, ?, 'salida', ?, ?, ?, ?)",
+          [item.producto_id, usuario_id, item.cantidad, prod[0].stock, prod[0].stock - item.cantidad, `Venta #${ventaId}`]
         );
-        total += item.quantity * prod[0].price;
+        total += item.cantidad * prod[0].precio;
       }
-      await conn.query("UPDATE sales SET total = ? WHERE id = ?", [total, saleId]);
+      await conn.query("UPDATE ventas SET total = ? WHERE id = ?", [total, ventaId]);
       await conn.commit();
-      return findByIdQuery(saleId);
+      return findByIdQuery(ventaId);
     } catch (err) {
       await conn.rollback();
       throw err;
@@ -51,9 +49,8 @@ export const SaleModel = {
       conn.release();
     }
   },
-
   delete: async (id) => {
-    const [result] = await pool.query("DELETE FROM sales WHERE id = ?", [id]);
+    const [result] = await pool.query("DELETE FROM ventas WHERE id = ?", [id]);
     return result.affectedRows > 0;
   },
 };

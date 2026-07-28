@@ -2,28 +2,24 @@ import pool from "../config/db.js";
 
 export const CategoryModel = {
   findAll: async () => {
-    const [rows] = await pool.query("SELECT * FROM categories ORDER BY id");
+    const [rows] = await pool.query("SELECT * FROM categorias ORDER BY id");
     return rows;
   },
-
   findById: async (id) => {
-    const [rows] = await pool.query("SELECT * FROM categories WHERE id = ?", [id]);
+    const [rows] = await pool.query("SELECT * FROM categorias WHERE id = ?", [id]);
     return rows[0] || null;
   },
-
-  create: async ({ name }) => {
-    const [result] = await pool.query("INSERT INTO categories (name) VALUES (?)", [name]);
-    return { id: result.insertId, name };
+  create: async ({ nombre }) => {
+    const [result] = await pool.query("INSERT INTO categorias (nombre) VALUES (?)", [nombre]);
+    return { id: result.insertId, nombre };
   },
-
-  update: async (id, { name }) => {
-    const [result] = await pool.query("UPDATE categories SET name = ? WHERE id = ?", [name, id]);
+  update: async (id, { nombre }) => {
+    const [result] = await pool.query("UPDATE categorias SET nombre = ? WHERE id = ?", [nombre, id]);
     if (result.affectedRows === 0) return null;
-    return { id, name };
+    return { id, nombre };
   },
-
   delete: async (id) => {
-    const [result] = await pool.query("DELETE FROM categories WHERE id = ?", [id]);
+    const [result] = await pool.query("DELETE FROM categorias WHERE id = ?", [id]);
     return result.affectedRows > 0;
   },
 };
