@@ -1,43 +1,43 @@
 # Modelos - Gestión de Categorías y Productos
 
-Proyecto completo dividido en 3 módulos:
-
-## 📂 Estructura
+Proyecto dividido en 3 módulos:
 
 ```
 Modelos/
-├── backend/          → API REST con Node.js + Express
-│   ├── project/
-│   │   ├── app.js
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   └── data/
-│   └── package.json
+├── backend/          → API REST Node.js + Express + MySQL
+│   ├── app.js
+│   ├── package.json
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── config/
+│   │   ├── db.js
+│   │   ├── database.sql
+│   │   └── .env.example
+│   ├── data/
+│   └── public/
 ├── frontend/         → Interfaz web HTML/CSS/JS
 │   ├── index.html
-│   ├── css/style.css
-│   └── js/app.js
-├── docs/             → Documentación del proyecto
+│   ├── css/
+│   ├── js/
+│   └── assets/
+├── docs/             → Documentación
 │   ├── README.md
-│   └── profile/README.md
-└── package.json
+│   └── Documentacion.md
+├── .gitignore
+└── README.md
 ```
 
-## 🚀 Inicio rápido
+## Inicio rápido
 
 ```bash
-# Backend
 cd backend
 npm install
 npm start
-
-# Frontend (en otra terminal)
-cd frontend
-# Abrir index.html en el navegador
 ```
 
-## 🔌 Endpoints
+## Endpoints
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
