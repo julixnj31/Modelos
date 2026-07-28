@@ -1,24 +1,16 @@
 {
-  "name": "modelo",
+  "name": "modelos-backend",
   "version": "1.0.0",
-  "description": "Actividad 2",
-  "main": "backend/app.js",
+  "description": "API REST - Gestión de Categorías y Productos",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon backend/app.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/julixnj31/Modelos.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "bugs": {
-    "url": "https://github.com/OscarSolano97/Modelos-Backend/issues"
-  },
-  "homepage": "https://github.com/OscarSolano97/Modelos-Backend#readme",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
