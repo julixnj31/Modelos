@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 import productRouter from "./routes/product.routes.js";
 import categoryRouter from "./routes/category.routes.js";
@@ -8,20 +10,14 @@ import clientesRouter from "./routes/clientes.routes.js";
 import ventasRouter from "./routes/ventas.routes.js";
 import inventarioRouter from "./routes/inventario.routes.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API de Gestión de Inventario",
-    data: [],
-    errors: [],
-  });
-});
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 app.use("/productos", productRouter);
 app.use("/categorias", categoryRouter);
