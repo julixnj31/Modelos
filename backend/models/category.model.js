@@ -1,37 +1,29 @@
-import categoriesData from "../data/categories.data.js";
+import pool from "../config/db.js";
 
 export const CategoryModel = {
-  findAll: () => {
-    return categoriesData;
+  findAll: async () => {
+    const [rows] = await pool.query("SELECT * FROM categories ORDER BY id");
+    return rows;
   },
 
-  findById: (id) => {
-    return categoriesData.find((c) => c.id === id);
+  findById: async (id) => {
+    const [rows] = await pool.query("SELECT * FROM categories WHERE id = ?", [id]);
+    return rows[0] || null;
   },
 
-  create: (newCategory) => {
-    // Generamos un ID basado en la longitud del arreglo (simulación de Auto Increment)
-    const id = categoriesData.length + 1;
-    const categoryWithId = { id, ...newCategory };
-    categoriesData.push(categoryWithId);
-    return categoryWithId;
+  create: async ({ name }) => {
+    const [result] = await pool.query("INSERT INTO categories (name) VALUES (?)", [name]);
+    return { id: result.insertId, name };
   },
 
-  update: (id, updatedFields) => {
-    const index = categoriesData.findIndex((c) => c.id === id);
-    if (index === -1) return null;
-
-    // Fusionamos los datos existentes con los campos a actualizar
-    categoriesData[index] = { ...categoriesData[index], ...updatedFields };
-    return categoriesData[index];
+  update: async (id, { name }) => {
+    const [result] = await pool.query("UPDATE categories SET name = ? WHERE id = ?", [name, id]);
+    if (result.affectedRows === 0) return null;
+    return { id, name };
   },
 
-  delete: (id) => {
-    const index = categoriesData.findIndex((category) => category.id === id);
-    if (index === -1) return false;
-
-    // Eliminamos 1 elemento en la posición encontrada
-    categoriesData.splice(index, 1);
-    return true;
+  delete: async (id) => {
+    const [result] = await pool.query("DELETE FROM categories WHERE id = ?", [id]);
+    return result.affectedRows > 0;
   },
 };

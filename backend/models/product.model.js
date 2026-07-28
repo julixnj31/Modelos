@@ -1,40 +1,44 @@
-import productsData from "../data/products.data.js";
+import pool from "../config/db.js";
 
 export const ProductModel = {
-  findAll: () => {
-    return productsData;
+  findAll: async () => {
+    const [rows] = await pool.query("SELECT * FROM products ORDER BY id");
+    return rows;
   },
 
-  findById: (id) => {
-    return productsData.find((p) => p.id === id);
+  findById: async (id) => {
+    const [rows] = await pool.query("SELECT * FROM products WHERE id = ?", [id]);
+    return rows[0] || null;
   },
 
-  // NUEVO MÉTODO: Búsqueda relacional
-  findByCategoryId: (categoryId) => {
-    // Usamos .filter() porque una categoría puede tener MUCHOS productos
-    // Retorna un arreglo (vacío si no hay coincidencias, o con los productos encontrados)
-    return productsData.filter((p) => p.categoryId === categoryId);
+  findByCategoryId: async (categoryId) => {
+    const [rows] = await pool.query("SELECT * FROM products WHERE categoryId = ?", [categoryId]);
+    return rows;
   },
 
-  create: (newProduct) => {
-    const id = productsData.length + 1;
-    const productWithId = { id, ...newProduct };
-    productsData.push(productWithId);
-    return productWithId;
+  create: async ({ name, price, categoryId }) => {
+    const [result] = await pool.query(
+      "INSERT INTO products (name, price, categoryId) VALUES (?, ?, ?)",
+      [name, price, categoryId]
+    );
+    return { id: result.insertId, name, price, categoryId };
   },
 
-  update: (id, updatedFields) => {
-    const index = productsData.findIndex((p) => p.id === id);
-    if (index === -1) return null;
-
-    productsData[index] = { ...productsData[index], ...updatedFields };
-    return productsData[index];
+  update: async (id, fields) => {
+    const sets = [];
+    const values = [];
+    if (fields.name !== undefined) { sets.push("name = ?"); values.push(fields.name); }
+    if (fields.price !== undefined) { sets.push("price = ?"); values.push(fields.price); }
+    if (fields.categoryId !== undefined) { sets.push("categoryId = ?"); values.push(fields.categoryId); }
+    if (sets.length === 0) return null;
+    values.push(id);
+    const [result] = await pool.query(`UPDATE products SET ${sets.join(", ")} WHERE id = ?`, values);
+    if (result.affectedRows === 0) return null;
+    return this.findById(id);
   },
 
-  delete: (id) => {
-    const index = productsData.findIndex((product) => product.id === id);
-    if (index === -1) return false;
-    productsData.splice(index, 1);
-    return true;
+  delete: async (id) => {
+    const [result] = await pool.query("DELETE FROM products WHERE id = ?", [id]);
+    return result.affectedRows > 0;
   },
 };
