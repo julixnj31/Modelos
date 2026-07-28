@@ -1,18 +1,52 @@
-• ¿Qué componente se encarga de recibir la petición HTTP y dirigirla al controlador?
+# Modelos - Gestión de Categorías y Productos
 
-El componente encargado de recibir la petición HTTP y dirigirla al controlador es el Router (enrutador).
-Este se encarga de analizar la URL y el método HTTP (GET, POST, PUT, DELETE) y enviar la petición al controlador correspondiente.
+Proyecto completo dividido en 3 módulos:
 
-• ¿Qué componente se encarga de comunicarse con la base de datos?
+## 📂 Estructura
 
-El componente encargado de comunicarse con la base de datos es el Modelo.
-Su función es gestionar los datos de la aplicación, realizando operaciones como crear, consultar, actualizar o eliminar información.
+```
+Modelos/
+├── backend/          → API REST con Node.js + Express
+│   ├── project/
+│   │   ├── app.js
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── data/
+│   └── package.json
+├── frontend/         → Interfaz web HTML/CSS/JS
+│   ├── index.html
+│   ├── css/style.css
+│   └── js/app.js
+├── docs/             → Documentación del proyecto
+│   ├── README.md
+│   └── profile/README.md
+└── package.json
+```
 
-• ¿Qué componente envía finalmente la respuesta HTTP al cliente?
+## 🚀 Inicio rápido
 
-El componente que envía la respuesta HTTP al cliente es el Controlador.
-Este recibe la petición desde el router, procesa la información (con ayuda del modelo) y responde al cliente utilizando métodos como res.json() o res.status().json().
+```bash
+# Backend
+cd backend
+npm install
+npm start
 
+# Frontend (en otra terminal)
+cd frontend
+# Abrir index.html en el navegador
+```
 
+## 🔌 Endpoints
 
-npm install para recrear el proyecto
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | /categories | Listar categorías |
+| POST | /categories | Crear categoría |
+| PUT | /categories/:id | Actualizar categoría |
+| DELETE | /categories/:id | Eliminar (con validación) |
+| GET | /products | Listar productos |
+| POST | /products | Crear producto |
+| PUT | /products/:id | Actualizar producto |
+| DELETE | /products/:id | Eliminar producto |
+| GET | /categories/:id/products | Productos por categoría |

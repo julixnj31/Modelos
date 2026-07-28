@@ -2,14 +2,14 @@
   "name": "modelo",
   "version": "1.0.0",
   "description": "Actividad 2",
-  "main": "project/app.js",
+  "main": "backend/app.js",
   "scripts": {
-    "start": "nodemon project/app.js",
+    "start": "nodemon backend/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OscarSolano97/Modelos-Backend.git"
+    "url": "git+https://github.com/julixnj31/Modelos.git"
   },
   "keywords": [],
   "author": "",
