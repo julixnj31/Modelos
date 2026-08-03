@@ -44,8 +44,8 @@ app.use("/clientes", clientesRouter);
 app.use("/ventas", ventasRouter);
 app.use("/inventario", inventarioRouter);
 
-// Puerto donde se enciende el servidor (para desarrollo)
-const PORT = 3000;
+// Puerto del servidor: se puede cambiar desde el .env (variable PORT)
+const PORT = process.env.PORT || 3000;
 
 // Enciende el servidor y avisa en la consola cuando ya está listo
 app.listen(PORT, "0.0.0.0", () => {
