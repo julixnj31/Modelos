@@ -36,6 +36,14 @@ Modelos/
    el archivo `backend/config/database.sql`. Esto crea la BD `inventario_adso`
    con sus 8 tablas y datos de prueba.
 
+   Si la BD ya la creaste antes de que existiera el encriptado, corre el
+   script que deja las contraseñas de los usuarios de prueba en bcrypt:
+
+   ```bash
+   cd backend
+   npm run seed
+   ```
+
 2. **Crear tus credenciales** — Dentro de `backend/`, copia el archivo
    `.env.example` como `.env` y pon tu usuario y contraseña de MySQL:
 
@@ -60,7 +68,17 @@ Modelos/
    Verás `Servidor encendido en el puerto 3000`. La API queda escuchando ahí.
 
 4. **Abrir la página:** doble clic en `frontend/index.html` (o servirlo con
-   VS Code / Live Server). La página se conecta a `http://localhost:3000`.
+   VS Code / Live Server). La página pide iniciar sesión y se conecta a
+   `http://localhost:3000`.
+
+## Iniciar sesión
+
+Usuarios de prueba (contraseñas en bcrypt):
+`admin@inventario.com / admin123` · `vendedor@inventario.com / vendedor123` · `bodega@inventario.com / bodega123`
+
+Todas las rutas de la API (menos `/login`) exigen un **token**. Lo consigues
+haciendo `POST /login` con email y contraseña; luego se envía en la cabecera
+`Authorization: Bearer <token>`.
 
 ## Endpoints de la API
 
@@ -68,6 +86,7 @@ Todas las rutas responden JSON: `{ success, message, data, errors }`.
 
 | Método | Ruta                      | Descripción                          |
 |--------|---------------------------|--------------------------------------|
+| POST   | /login                    | Iniciar sesión (entrega token)       |
 | GET    | /categorias               | Listar categorías                    |
 | POST   | /categorias               | Crear categoría                      |
 | PUT    | /categorias/:id           | Actualizar categoría                 |
