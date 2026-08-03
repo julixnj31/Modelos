@@ -118,10 +118,12 @@ CREATE TABLE movimientos_inventario (
 -- ============================================================
 
 -- Usuarios de ejemplo para iniciar sesión
+-- Las contraseñas van ENCRIPTADAS (bcrypt). Las reales son:
+--   admin123 para admin || vendedor123 para vendedor || bodega123 para bodeguero
 INSERT INTO usuarios (nombre, email, password, rol) VALUES
-('Admin', 'admin@inventario.com', 'admin123', 'admin'),
-('Vendedor', 'vendedor@inventario.com', 'vendedor123', 'vendedor'),
-('Bodeguero', 'bodega@inventario.com', 'bodega123', 'bodeguero');
+('Admin', 'admin@inventario.com', '$2b$10$fywEUekQhLDz8xW0K6a1J.jG3SxXRbJbH5L39jRVkbDIsfhRj4nBS', 'admin'),
+('Vendedor', 'vendedor@inventario.com', '$2b$10$DmAKhs7mroPo5/wn/798POP81r2iNYjgVPvNfCNWNZBMplNk6DJRq', 'vendedor'),
+('Bodeguero', 'bodega@inventario.com', '$2b$10$ICCA6OeYFmi07JxVjOBOGOalwugnSN6HgQArmIB4zbuk4BpX112My', 'bodeguero');
 
 -- Categorías de los productos
 INSERT INTO categorias (nombre, creado_por) VALUES

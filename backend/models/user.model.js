@@ -3,6 +3,7 @@
 // ============================================================
 
 import pool from "../config/db.js";
+import bcrypt from "bcryptjs"; // Para encriptar las contraseñas
 
 export const UserModel = {
   // Trae todos los usuarios, pero SIN la contraseña
@@ -18,13 +19,22 @@ export const UserModel = {
     return rows[0] || null;
   },
 
-  // Registra un usuario. Si no dicen el rol, queda como 'vendedor' por defecto.
+  // Busca un usuario por email INCLUYENDO la contraseña encriptada.
+  // Se usa SOLO para el login (para comparar contraseñas).
+  findByEmail: async (email) => {
+    const [rows] = await pool.query("SELECT * FROM usuarios WHERE email = ?", [email]);
+    return rows[0] || null;
+  },
+
+  // Registra un usuario. La contraseña se encripta antes de guardar
+  // (10 vueltas de sal; así nadie la puede leer en la base de datos).
   create: async ({ nombre, email, password, rol }) => {
-    const [result] = await pool.query("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)", [nombre, email, password, rol || 'vendedor']);
+    const passwordHash = await bcrypt.hash(password, 10);
+    const [result] = await pool.query("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)", [nombre, email, passwordHash, rol || 'vendedor']);
     return { id: result.insertId, nombre, email, rol: rol || 'vendedor' };
   },
 
-  // Edita nombre, email y/o rol (solo lo que venga en la petición)
+  // Edita nombre, email y/o rol (la contraseña no se toca aquí)
   async update(id, fields) {
     const sets = []; const values = [];
     if (fields.nombre) { sets.push("nombre = ?"); values.push(fields.nombre); }
