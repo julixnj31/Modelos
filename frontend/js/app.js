@@ -23,7 +23,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 // --- Cargar la lista de categorías desde la API y pintarla en la tabla ---
 async function loadCategories() {
-  const res = await fetch(`${API}/categories`);
+  const res = await fetch(`${API}/categorias`);
   const { data } = await res.json();
   const tbody = document.getElementById('categories-body');
   tbody.innerHTML = '';
@@ -31,9 +31,9 @@ async function loadCategories() {
     tbody.innerHTML += `
       <tr>
         <td>${cat.id}</td>
-        <td>${cat.name}</td>
+        <td>${cat.nombre}</td>
         <td class="actions">
-          <button class="edit" onclick="editCategory(${cat.id}, '${cat.name}')">Editar</button>
+          <button class="edit" onclick="editCategory(${cat.id}, '${cat.nombre}')">Editar</button>
           <button class="delete" onclick="deleteCategory(${cat.id})">Eliminar</button>
         </td>
       </tr>`;
@@ -42,13 +42,13 @@ async function loadCategories() {
 
 // --- Cargar la lista de productos (y su categoría) desde la API ---
 async function loadProducts() {
-  const res = await fetch(`${API}/products`);
+  const res = await fetch(`${API}/productos`);
   const { data } = await res.json();
-  const catsRes = await fetch(`${API}/categories`);
+  const catsRes = await fetch(`${API}/categorias`);
   const { data: cats } = await catsRes.json();
   // Mapa: id de categoría -> nombre, para mostrar el nombre en vez del número
   const catMap = {};
-  cats.forEach(c => catMap[c.id] = c.name);
+  cats.forEach(c => catMap[c.id] = c.nombre);
 
   const tbody = document.getElementById('products-body');
   tbody.innerHTML = '';
@@ -56,9 +56,9 @@ async function loadProducts() {
     tbody.innerHTML += `
       <tr>
         <td>${prod.id}</td>
-        <td>${prod.name}</td>
-        <td>$${prod.price}</td>
-        <td>${catMap[prod.categoryId] || 'Sin categoría'}</td>
+        <td>${prod.nombre}</td>
+        <td>$${prod.precio}</td>
+        <td>${catMap[prod.categoria_id] || 'Sin categoría'}</td>
         <td class="actions">
           <button class="edit" onclick="editProduct(${prod.id})">Editar</button>
           <button class="delete" onclick="deleteProduct(${prod.id})">Eliminar</button>
@@ -75,19 +75,19 @@ document.getElementById('add-category').addEventListener('click', async () => {
   if (!name) return alert('Ingrese un nombre');
 
   if (editingCategoryId) {
-    await fetch(`${API}/categories/${editingCategoryId}`, {
+    await fetch(`${API}/categorias/${editingCategoryId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ nombre })
     });
     // Termina la edición y el botón vuelve a decir "Agregar"
     editingCategoryId = null;
     document.getElementById('add-category').textContent = 'Agregar';
   } else {
-    await fetch(`${API}/categories`, {
+    await fetch(`${API}/categorias`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ nombre })
     });
   }
 
@@ -105,7 +105,7 @@ function editCategory(id, name) {
 // Borra una categoría (antes pregunta para no borrar por accidente)
 async function deleteCategory(id) {
   if (!confirm('¿Eliminar categoría?')) return;
-  const res = await fetch(`${API}/categories/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${API}/categorias/${id}`, { method: 'DELETE' });
   const data = await res.json();
   if (!data.success) return alert(data.message); // Si el backend dijo no, lo avisamos
   loadCategories();
@@ -114,7 +114,7 @@ async function deleteCategory(id) {
 // Borra un producto (también confirma antes)
 async function deleteProduct(id) {
   if (!confirm('¿Eliminar producto?')) return;
-  const res = await fetch(`${API}/products/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${API}/productos/${id}`, { method: 'DELETE' });
   const data = await res.json();
   if (!data.success) return alert(data.message);
   loadProducts();
