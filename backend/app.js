@@ -44,6 +44,18 @@ app.use("/clientes", clientesRouter);
 app.use("/ventas", ventasRouter);
 app.use("/inventario", inventarioRouter);
 
+// Si llega aquí es que ninguna ruta respondió: la URL no existe.
+// Se responde 404 como JSON (no HTML) para que el frontend la entienda.
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Ruta no encontrada", data: [], errors: [] });
+});
+
+// Manejador de errores inesperados: evita que el servidor se caiga
+// y devuelve el error como JSON con código 500.
+app.use((err, req, res, next) => {
+  res.status(500).json({ success: false, message: "Error interno", data: [], errors: [err.message] });
+});
+
 // Puerto del servidor: se puede cambiar desde el .env (variable PORT)
 const PORT = process.env.PORT || 3000;
 
