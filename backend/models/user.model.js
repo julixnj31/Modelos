@@ -25,7 +25,7 @@ export const UserModel = {
   },
 
   // Edita nombre, email y/o rol (solo lo que venga en la petición)
-  update: async (id, fields) => {
+  async update(id, fields) {
     const sets = []; const values = [];
     if (fields.nombre) { sets.push("nombre = ?"); values.push(fields.nombre); }
     if (fields.email) { sets.push("email = ?"); values.push(fields.email); }

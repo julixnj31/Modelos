@@ -27,7 +27,7 @@ export const ClientModel = {
   },
 
   // Edita solo los campos que se envíen
-  update: async (id, fields) => {
+  async update(id, fields) {
     const sets = []; const values = [];
     ["nombre","documento","telefono","email","direccion"].forEach(k => {
       if (fields[k] !== undefined) { sets.push(`${k} = ?`); values.push(fields[k]); }

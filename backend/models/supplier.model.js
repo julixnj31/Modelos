@@ -27,7 +27,7 @@ export const SupplierModel = {
   },
 
   // Edita solo los campos que lleguen (nombre, contacto, teléfono, etc.)
-  update: async (id, fields) => {
+  async update(id, fields) {
     const sets = []; const values = [];
     ["nombre","contacto","telefono","email","direccion"].forEach(k => {
       if (fields[k] !== undefined) { sets.push(`${k} = ?`); values.push(fields[k]); }

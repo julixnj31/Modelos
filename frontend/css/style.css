@@ -6,8 +6,8 @@ header h1 { margin-bottom: 10px; }
 .tab.active { background: #34495e; border-radius: 5px; }
 .section { display: none; }
 .section.active { display: block; }
-.actions { display: flex; gap: 10px; margin-bottom: 20px; }
-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+.actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+input, select { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: white; min-width: 120px; }
 button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
 button:hover { background: #2980b9; }
 button.edit { background: #f39c12; }
