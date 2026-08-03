@@ -5,6 +5,8 @@
 // ============================================================
 
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 
 // Rutas de cada módulo del sistema (productos, categorías, etc.)
@@ -19,6 +21,7 @@ import authRouter from "./routes/auth.routes.js";
 import { authGuard } from "./middleware/auth.js";
 
 // Se crea la aplicación Express (el servidor web)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // Middlewares: cosas que se ejecutan antes de llegar a las rutas
@@ -26,15 +29,9 @@ app.use(cors()); // Permite que el frontend (otro puerto) pueda llamar la API
 app.use(express.json()); // Sirve para leer JSON que envíe el cliente
 app.use(express.urlencoded({ extended: true })); // También acepta formularios normales
 
-// Ruta principal: solo es un mensaje de bienvenida para saber que la API vive
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API de Gestión de Inventario",
-    data: [],
-    errors: [],
-  });
-});
+// Sirve el frontend (index.html y sus archivos) desde la misma API.
+// Así se abre la página en http://localhost:3000 sin montar otro servidor.
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Ruta de acceso abierta a todos: iniciar sesión
 app.use("/login", authRouter);
