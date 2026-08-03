@@ -1,6 +1,11 @@
+// ============================================================
+// category.controller.js - Lógica de las categorías
+// ============================================================
+
 import { CategoryModel } from "../models/category.model.js";
 import { ProductModel } from "../models/product.model.js";
 
+// Trae todas las categorías
 const getAllCategories = async (req, res) => {
   try {
     const data = await CategoryModel.findAll();
@@ -8,6 +13,7 @@ const getAllCategories = async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
+// Busca una categoría por su id
 const getCategoryById = async (req, res) => {
   try {
     const data = await CategoryModel.findById(Number(req.params.id));
@@ -16,6 +22,7 @@ const getCategoryById = async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
+// Crea una categoría con su nombre (obligatorio)
 const createCategory = async (req, res) => {
   try {
     const { nombre } = req.body;
@@ -25,6 +32,7 @@ const createCategory = async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
+// Renombra una categoría existente
 const updateCategory = async (req, res) => {
   try {
     const data = await CategoryModel.update(Number(req.params.id), req.body);
@@ -33,6 +41,8 @@ const updateCategory = async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
+// Borra una categoría, pero primero revisa que no tenga productos adentro
+// (si tiene, responde 409 = conflicto, para no dejar productos huérfanos).
 const deleteCategory = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -45,6 +55,7 @@ const deleteCategory = async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, message: "Error", data: [], errors: [e.message] }); }
 };
 
+// Endpoint relacional: devuelve todos los productos de una categoría
 const getProductsByCategory = async (req, res) => {
   try {
     const id = Number(req.params.id);

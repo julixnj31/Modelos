@@ -1,3 +1,9 @@
+// ============================================================
+// products.data.js - Lista de productos de ejemplo
+// (Datos en memoria; hoy el sistema ya lee todo de MySQL)
+// Se mantiene como referencia de los datos de prueba.
+// ============================================================
+
 const productsData = [
   // Categoría 1: Computadoras y Laptops
   { id: 1, name: "Laptop Pro 15", price: 1200, categoryId: 1 },
