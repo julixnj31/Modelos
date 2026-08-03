@@ -15,6 +15,7 @@ import proveedoresRouter from "./routes/proveedores.routes.js";
 import clientesRouter from "./routes/clientes.routes.js";
 import ventasRouter from "./routes/ventas.routes.js";
 import inventarioRouter from "./routes/inventario.routes.js";
+import authRouter from "./routes/auth.routes.js";
 
 // Se crea la aplicación Express (el servidor web)
 const app = express();
@@ -33,6 +34,9 @@ app.get('/', (req, res) => {
     errors: [],
   });
 });
+
+// Ruta de acceso abierta a todos: iniciar sesión
+app.use("/login", authRouter);
 
 // Aquí se "montan" todas las rutas del sistema
 // Cada una responde en su propio camino, ej: /productos, /ventas
