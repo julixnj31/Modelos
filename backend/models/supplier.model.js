@@ -1,14 +1,23 @@
+// ============================================================
+// supplier.model.js - Consultas SQL de proveedores
+// ============================================================
+
 import pool from "../config/db.js";
 
 export const SupplierModel = {
+  // Todos los proveedores, en orden de creación
   findAll: async () => {
     const [rows] = await pool.query("SELECT * FROM proveedores ORDER BY id");
     return rows;
   },
+
+  // Busca un proveedor por id
   findById: async (id) => {
     const [rows] = await pool.query("SELECT * FROM proveedores WHERE id = ?", [id]);
     return rows[0] || null;
   },
+
+  // Guarda un proveedor nuevo (todos sus datos van según lo que llegue)
   create: async (data) => {
     const [result] = await pool.query(
       "INSERT INTO proveedores (nombre, contacto, telefono, email, direccion, creado_por) VALUES (?, ?, ?, ?, ?, ?)",
@@ -16,7 +25,9 @@ export const SupplierModel = {
     );
     return { id: result.insertId, ...data };
   },
-  update: async (id, fields) => {
+
+  // Edita solo los campos que lleguen (nombre, contacto, teléfono, etc.)
+  async update(id, fields) {
     const sets = []; const values = [];
     ["nombre","contacto","telefono","email","direccion"].forEach(k => {
       if (fields[k] !== undefined) { sets.push(`${k} = ?`); values.push(fields[k]); }
@@ -27,6 +38,8 @@ export const SupplierModel = {
     if (result.affectedRows === 0) return null;
     return this.findById(id);
   },
+
+  // Elimina un proveedor
   delete: async (id) => {
     const [result] = await pool.query("DELETE FROM proveedores WHERE id = ?", [id]);
     return result.affectedRows > 0;

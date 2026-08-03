@@ -7,16 +7,38 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="app">
+  <!-- Pantalla de inicio de sesión (se ve primero, antes de la app) -->
+  <div id="login-view">
+    <h2>Iniciar sesión</h2>
+    <p>Usa un usuario de la base de datos, ej: admin@inventario.com / admin123</p>
+    <div class="actions">
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Contraseña">
+      <button id="login-btn">Entrar</button>
+    </div>
+    <p id="login-error"></p>
+  </div>
+
+  <div id="app" style="display:none">
     <header>
       <h1>Gestión de Inventario</h1>
+      <div class="user-bar">
+        <span id="user-info"></span>
+        <button id="logout-btn">Salir</button>
+      </div>
       <nav>
         <button class="tab active" data-tab="categories">Categorías</button>
         <button class="tab" data-tab="products">Productos</button>
+        <button class="tab" data-tab="users">Usuarios</button>
+        <button class="tab" data-tab="providers">Proveedores</button>
+        <button class="tab" data-tab="clients">Clientes</button>
+        <button class="tab" data-tab="sales">Ventas</button>
+        <button class="tab" data-tab="inventory">Inventario</button>
       </nav>
     </header>
 
     <main>
+      <!-- ===== Categorías ===== -->
       <section id="categories-section" class="section active">
         <h2>Categorías</h2>
         <div class="actions">
@@ -25,35 +47,123 @@
         </div>
         <table>
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
+            <tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>
           </thead>
           <tbody id="categories-body"></tbody>
         </table>
       </section>
 
+      <!-- ===== Productos ===== -->
       <section id="products-section" class="section">
         <h2>Productos</h2>
         <div class="actions">
-          <input type="text" id="product-name" placeholder="Nombre del producto">
-          <input type="number" id="product-price" placeholder="Precio">
+          <input type="text" id="product-name" placeholder="Nombre">
+          <input type="number" id="product-price" placeholder="Precio" step="0.01">
+          <select id="product-category"></select>
+          <select id="product-provider"></select>
+          <input type="number" id="product-stock" placeholder="Stock" min="0">
+          <input type="number" id="product-minstock" placeholder="Stock mínimo" min="0">
           <button id="add-product">Agregar</button>
         </div>
         <table>
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Precio</th>
-              <th>Categoría</th>
-              <th>Stock</th>
-              <th>Acciones</th>
-            </tr>
+            <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Categoría</th><th>Stock</th><th>Acciones</th></tr>
           </thead>
           <tbody id="products-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ===== Usuarios ===== -->
+      <section id="users-section" class="section">
+        <h2>Usuarios</h2>
+        <div class="actions">
+          <input type="text" id="user-name" placeholder="Nombre">
+          <input type="email" id="user-email" placeholder="Email">
+          <input type="password" id="user-password" placeholder="Contraseña">
+          <select id="user-rol">
+            <option value="admin">admin</option>
+            <option value="vendedor" selected>vendedor</option>
+            <option value="bodeguero">bodeguero</option>
+          </select>
+          <button id="add-user">Agregar</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ===== Proveedores ===== -->
+      <section id="providers-section" class="section">
+        <h2>Proveedores</h2>
+        <div class="actions">
+          <input type="text" id="provider-name" placeholder="Nombre">
+          <input type="text" id="provider-contact" placeholder="Contacto">
+          <input type="text" id="provider-phone" placeholder="Teléfono">
+          <input type="email" id="provider-email" placeholder="Email">
+          <input type="text" id="provider-address" placeholder="Dirección">
+          <button id="add-provider">Agregar</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="providers-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ===== Clientes ===== -->
+      <section id="clients-section" class="section">
+        <h2>Clientes</h2>
+        <div class="actions">
+          <input type="text" id="client-name" placeholder="Nombre">
+          <input type="text" id="client-document" placeholder="Documento">
+          <input type="text" id="client-phone" placeholder="Teléfono">
+          <input type="email" id="client-email" placeholder="Email">
+          <input type="text" id="client-address" placeholder="Dirección">
+          <button id="add-client">Agregar</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="clients-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ===== Ventas ===== -->
+      <section id="sales-section" class="section">
+        <h2>Ventas</h2>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Cliente</th><th>Vendedor</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="sales-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ===== Inventario ===== -->
+      <section id="inventory-section" class="section">
+        <h2>Movimientos de Inventario</h2>
+        <div class="actions">
+          <select id="move-product"></select>
+          <select id="move-user"></select>
+          <select id="move-type">
+            <option value="entrada">entrada</option>
+            <option value="salida">salida</option>
+            <option value="ajuste">ajuste</option>
+          </select>
+          <input type="number" id="move-qty" placeholder="Cantidad" min="1">
+          <input type="text" id="move-reason" placeholder="Motivo">
+          <button id="add-move">Registrar</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Producto</th><th>Usuario</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior</th><th>Stock nuevo</th><th>Motivo</th><th>Fecha</th></tr>
+          </thead>
+          <tbody id="inventory-body"></tbody>
         </table>
       </section>
     </main>

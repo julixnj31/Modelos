@@ -1,7 +1,15 @@
+// ============================================================
+// app.js - El "cerebro" del servidor
+// Aquí se crea la API, se le dice qué librerías usar
+// y se conectan todas las rutas del sistema de inventario.
+// ============================================================
+
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
+
+// Rutas de cada módulo del sistema (productos, categorías, etc.)
 import productRouter from "./routes/product.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 import usuariosRouter from "./routes/usuarios.routes.js";
@@ -9,16 +17,31 @@ import proveedoresRouter from "./routes/proveedores.routes.js";
 import clientesRouter from "./routes/clientes.routes.js";
 import ventasRouter from "./routes/ventas.routes.js";
 import inventarioRouter from "./routes/inventario.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import { authGuard } from "./middleware/auth.js";
 
+// Se crea la aplicación Express (el servidor web)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middlewares: cosas que se ejecutan antes de llegar a las rutas
+app.use(cors()); // Permite que el frontend (otro puerto) pueda llamar la API
+app.use(express.json()); // Sirve para leer JSON que envíe el cliente
+app.use(express.urlencoded({ extended: true })); // También acepta formularios normales
 
+// Sirve el frontend (index.html y sus archivos) desde la misma API.
+// Así se abre la página en http://localhost:3000 sin montar otro servidor.
 app.use(express.static(path.join(__dirname, "../frontend")));
 
+// Ruta de acceso abierta a todos: iniciar sesión
+app.use("/login", authRouter);
+
+// Protege las rutas del sistema: sin un token válido, todas
+// responden 401 (No autorizado) y no dejan entrar.
+app.use(["/productos", "/categorias", "/usuarios", "/proveedores", "/clientes", "/ventas", "/inventario"], authGuard);
+
+// Aquí se "montan" todas las rutas del sistema
+// Cada una responde en su propio camino, ej: /productos, /ventas
 app.use("/productos", productRouter);
 app.use("/categorias", categoryRouter);
 app.use("/usuarios", usuariosRouter);
@@ -27,8 +50,22 @@ app.use("/clientes", clientesRouter);
 app.use("/ventas", ventasRouter);
 app.use("/inventario", inventarioRouter);
 
-const PORT = 3000;
+// Si llega aquí es que ninguna ruta respondió: la URL no existe.
+// Se responde 404 como JSON (no HTML) para que el frontend la entienda.
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Ruta no encontrada", data: [], errors: [] });
+});
 
+// Manejador de errores inesperados: evita que el servidor se caiga
+// y devuelve el error como JSON con código 500.
+app.use((err, req, res, next) => {
+  res.status(500).json({ success: false, message: "Error interno", data: [], errors: [err.message] });
+});
+
+// Puerto del servidor: se puede cambiar desde el .env (variable PORT)
+const PORT = process.env.PORT || 3000;
+
+// Enciende el servidor y avisa en la consola cuando ya está listo
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor encendido en el puerto ${PORT}`);
 });

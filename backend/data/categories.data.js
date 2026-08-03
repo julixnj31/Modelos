@@ -1,3 +1,9 @@
+// ============================================================
+// categories.data.js - Lista de categorías de ejemplo
+// (Datos en memoria; hoy el sistema ya lee todo de MySQL)
+// Se mantiene como referencia de los datos de prueba.
+// ============================================================
+
 const categoriesData = [
   { id: 1, name: "Computadoras y Laptops" },
   { id: 2, name: "Periféricos y Accesorios" },
