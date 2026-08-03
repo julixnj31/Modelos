@@ -2,25 +2,100 @@
 // app.js (frontend) - La página que ve el usuario
 // Habla con la API del backend y pinta los datos de cada módulo:
 // categorías, productos, usuarios, proveedores, clientes,
-// ventas e inventario.
+// ventas e inventario. Antes de todo pide iniciar sesión.
 // ============================================================
 
 // Dirección donde está corriendo el servidor de la API.
 const API = 'http://localhost:3000';
 
-// Guarda temporalmente qué categoría o producto se está editando.
-// null = no se está editando nada en ese módulo.
+// Token de la sesión: se guarda en el navegador para recordar
+// quién entró, aunque se recargue la página.
+let token = localStorage.getItem('api_token') || null;
+let currentUser = JSON.parse(localStorage.getItem('api_user') || 'null');
+
+// editingCategoryId / editingProductId: qué categoría o producto
+// se está editando (null = no se edita).
 let editingCategoryId = null;
 let editingProductId = null;
 
-// Este "mapa" guarda los productos ya cargados, para poder llenar
-// el formulario al apretar "Editar" sin volver a pedir a la API.
+// Mapa de productos ya cargados, para llenar el formulario al editar
 let productsById = {};
 
+// --- Llamadas a la API con token ---
+// Todas las peticiones pasan por aquí: agrega la cabecera de autorización.
+// Si la sesión expiró (401), cierra sesión y vuelve a la pantalla de login.
+const api = async (path, opts = {}) => {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API + path, { ...opts, headers });
+  if (res.status === 401) {
+    logout();
+    throw new Error('Sesión expirada, vuelve a entrar');
+  }
+  return res.json();
+};
+
+// --- Login / Logout ---
+// "Entrar": manda email y contraseña; si son válidos guarda el token
+// en el navegador y muestra la aplicación.
+const loginBtn = document.getElementById('login-btn');
+loginBtn.addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  errorEl.textContent = '';
+  if (!email || !password) return errorEl.textContent = 'Ingresa email y contraseña';
+
+  const res = await fetch(`${API}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!data.success) return errorEl.textContent = data.message;
+
+  token = data.data.token;
+  currentUser = data.data.user;
+  localStorage.setItem('api_token', token);
+  localStorage.setItem('api_user', JSON.stringify(currentUser));
+  enterApp();
+});
+
+// "Salir": borra el token y vuelve a la pantalla de login
+function logout() {
+  token = null;
+  currentUser = null;
+  localStorage.removeItem('api_token');
+  localStorage.removeItem('api_user');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-view').style.display = 'block';
+}
+
+// Entrar a la aplicación: muestra la app, el nombre del usuario,
+// llena los selects y carga todas las tablas.
+const enterApp = async () => {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-info').textContent = `${currentUser.nombre} (${currentUser.rol})`;
+  await setup();
+  loadCategories();
+  loadProducts();
+  loadUsers();
+  loadProviders();
+  loadClients();
+  loadSales();
+  loadInventory();
+};
+
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+// Si ya había una sesión guardada, entra directo (si el token no sirve,
+// la primera petición devolverá 401 y mandará a login).
+if (token) enterApp();
+
 // --- Pestañas ---
-// Al hacer clic en una pestaña se le pone la clase "active" a esa
-// pestaña y a su sección, y se la quita a las demás.
-// Así solo se ve una sección a la vez.
+// Al hacer clic en una pestaña se marca como activa y se muestra
+// solo su sección (las demás se ocultan).
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -32,10 +107,8 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 // --- Ayudante: llenar un <select> desde una ruta de la API ---
 // Ej: fillSelect('product-category', '/categorias', 'id', 'nombre')
-// Sirve para los selects de categoría, proveedor, producto y usuario.
 const fillSelect = async (elId, url, valueKey, labelKey) => {
-  const res = await fetch(`${API}${url}`);
-  const { data } = await res.json();
+  const { data } = await api(url);
   const el = document.getElementById(elId);
   el.innerHTML = '';
   data.forEach(item => {
@@ -50,10 +123,8 @@ const fillSelect = async (elId, url, valueKey, labelKey) => {
 // CATEGORÍAS
 // ============================================================
 
-// Carga las categorías y las pinta en la tabla
 async function loadCategories() {
-  const res = await fetch(`${API}/categorias`);
-  const { data } = await res.json();
+  const { data } = await api('/categorias');
   const tbody = document.getElementById('categories-body');
   tbody.innerHTML = '';
   data.forEach(cat => {
@@ -69,27 +140,18 @@ async function loadCategories() {
   });
 }
 
-// Botón "Agregar / Actualizar" categoría.
-// Si hay una en edición hace PUT; si no, hace POST.
+// Botón "Agregar / Actualizar" categoría (PUT si edita, POST si nueva)
 document.getElementById('add-category').addEventListener('click', async () => {
   const input = document.getElementById('category-name');
   const name = input.value.trim();
   if (!name) return alert('Ingrese un nombre');
 
   if (editingCategoryId) {
-    await fetch(`${API}/categorias/${editingCategoryId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: name })
-    });
+    await api(`/categorias/${editingCategoryId}`, { method: 'PUT', body: JSON.stringify({ nombre: name }) });
     editingCategoryId = null;
     document.getElementById('add-category').textContent = 'Agregar';
   } else {
-    await fetch(`${API}/categorias`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: name })
-    });
+    await api('/categorias', { method: 'POST', body: JSON.stringify({ nombre: name }) });
   }
 
   input.value = '';
@@ -103,33 +165,28 @@ function editCategory(id, name) {
   document.getElementById('add-category').textContent = 'Actualizar';
 }
 
-// Borra una categoría (debe estar vacía para poder borrarla)
 async function deleteCategory(id) {
   if (!confirm('¿Eliminar categoría?')) return;
-  const res = await fetch(`${API}/categorias/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/categorias/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadCategories();
 }
 
 // ============================================================
-// PRODUCTOS (crud completo: ver, crear, editar y borrar)
+// PRODUCTOS
 // ============================================================
 
-// Carga los productos con su categoría y los pinta
 async function loadProducts() {
-  const res = await fetch(`${API}/productos`);
-  const { data } = await res.json();
-  const catsRes = await fetch(`${API}/categorias`);
-  const { data: cats } = await catsRes.json();
+  const { data } = await api('/productos');
+  const catsRes = await api('/categorias');
   const catMap = {};
-  cats.forEach(c => catMap[c.id] = c.nombre);
+  catsRes.data.forEach(c => catMap[c.id] = c.nombre);
 
-  productsById = {}; // Reinicia el mapa de productos
+  productsById = {};
   const tbody = document.getElementById('products-body');
   tbody.innerHTML = '';
   data.forEach(prod => {
-    productsById[prod.id] = prod; // Guarda cada producto para poder editarlo luego
+    productsById[prod.id] = prod;
     tbody.innerHTML += `
       <tr>
         <td>${prod.id}</td>
@@ -145,8 +202,7 @@ async function loadProducts() {
   });
 }
 
-// Botón "Agregar / Actualizar" producto.
-// Junta los campos del formulario y hace POST (nuevo) o PUT (editar).
+// Botón "Agregar / Actualizar" producto
 document.getElementById('add-product').addEventListener('click', async () => {
   const nombre = document.getElementById('product-name').value.trim();
   const precio = document.getElementById('product-price').value;
@@ -161,18 +217,11 @@ document.getElementById('add-product').addEventListener('click', async () => {
     stock_minimo: Number(document.getElementById('product-minstock').value) || 0
   };
 
-  const url = editingProductId ? `${API}/productos/${editingProductId}` : `${API}/productos`;
+  const url = editingProductId ? `/productos/${editingProductId}` : '/productos';
   const method = editingProductId ? 'PUT' : 'POST';
-
-  const res = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  const data = await res.json();
+  const data = await api(url, { method, body: JSON.stringify(body) });
   if (!data.success) return alert(data.message);
 
-  // Limpia el formulario y vuelve a pintar la tabla
   editingProductId = null;
   document.getElementById('product-name').value = '';
   document.getElementById('product-price').value = '';
@@ -196,11 +245,9 @@ function editProduct(id) {
   document.getElementById('add-product').textContent = 'Actualizar';
 }
 
-// Borra un producto
 async function deleteProduct(id) {
   if (!confirm('¿Eliminar producto?')) return;
-  const res = await fetch(`${API}/productos/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/productos/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadProducts();
 }
@@ -210,8 +257,7 @@ async function deleteProduct(id) {
 // ============================================================
 
 async function loadUsers() {
-  const res = await fetch(`${API}/usuarios`);
-  const { data } = await res.json();
+  const { data } = await api('/usuarios');
   const tbody = document.getElementById('users-body');
   tbody.innerHTML = '';
   data.forEach(u => {
@@ -228,24 +274,16 @@ async function loadUsers() {
   });
 }
 
-// Botón "Agregar" usuario
 document.getElementById('add-user').addEventListener('click', async () => {
   const nombre = document.getElementById('user-name').value.trim();
   const email = document.getElementById('user-email').value.trim();
   const password = document.getElementById('user-password').value;
   if (!nombre || !email || !password) return alert('Nombre, email y contraseña obligatorios');
 
-  const res = await fetch(`${API}/usuarios`, {
+  const data = await api('/usuarios', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      nombre,
-      email,
-      password,
-      rol: document.getElementById('user-rol').value
-    })
+    body: JSON.stringify({ nombre, email, password, rol: document.getElementById('user-rol').value })
   });
-  const data = await res.json();
   if (!data.success) return alert(data.message);
 
   document.getElementById('user-name').value = '';
@@ -254,11 +292,9 @@ document.getElementById('add-user').addEventListener('click', async () => {
   loadUsers();
 });
 
-// Borra un usuario
 async function deleteUser(id) {
   if (!confirm('¿Eliminar usuario?')) return;
-  const res = await fetch(`${API}/usuarios/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/usuarios/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadUsers();
 }
@@ -268,8 +304,7 @@ async function deleteUser(id) {
 // ============================================================
 
 async function loadProviders() {
-  const res = await fetch(`${API}/proveedores`);
-  const { data } = await res.json();
+  const { data } = await api('/proveedores');
   const tbody = document.getElementById('providers-body');
   tbody.innerHTML = '';
   data.forEach(p => {
@@ -287,14 +322,12 @@ async function loadProviders() {
   });
 }
 
-// Botón "Agregar" proveedor
 document.getElementById('add-provider').addEventListener('click', async () => {
   const nombre = document.getElementById('provider-name').value.trim();
   if (!nombre) return alert('El nombre es obligatorio');
 
-  const res = await fetch(`${API}/proveedores`, {
+  const data = await api('/proveedores', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       nombre,
       contacto: document.getElementById('provider-contact').value.trim(),
@@ -303,7 +336,6 @@ document.getElementById('add-provider').addEventListener('click', async () => {
       direccion: document.getElementById('provider-address').value.trim()
     })
   });
-  const data = await res.json();
   if (!data.success) return alert(data.message);
 
   ['provider-name', 'provider-contact', 'provider-phone', 'provider-email', 'provider-address']
@@ -312,11 +344,9 @@ document.getElementById('add-provider').addEventListener('click', async () => {
   loadProducts();
 });
 
-// Borra un proveedor
 async function deleteProvider(id) {
   if (!confirm('¿Eliminar proveedor?')) return;
-  const res = await fetch(`${API}/proveedores/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/proveedores/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadProviders();
 }
@@ -326,8 +356,7 @@ async function deleteProvider(id) {
 // ============================================================
 
 async function loadClients() {
-  const res = await fetch(`${API}/clientes`);
-  const { data } = await res.json();
+  const { data } = await api('/clientes');
   const tbody = document.getElementById('clients-body');
   tbody.innerHTML = '';
   data.forEach(c => {
@@ -345,14 +374,12 @@ async function loadClients() {
   });
 }
 
-// Botón "Agregar" cliente
 document.getElementById('add-client').addEventListener('click', async () => {
   const nombre = document.getElementById('client-name').value.trim();
   if (!nombre) return alert('El nombre es obligatorio');
 
-  const res = await fetch(`${API}/clientes`, {
+  const data = await api('/clientes', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       nombre,
       documento: document.getElementById('client-document').value.trim(),
@@ -361,7 +388,6 @@ document.getElementById('add-client').addEventListener('click', async () => {
       direccion: document.getElementById('client-address').value.trim()
     })
   });
-  const data = await res.json();
   if (!data.success) return alert(data.message);
 
   ['client-name', 'client-document', 'client-phone', 'client-email', 'client-address']
@@ -369,11 +395,9 @@ document.getElementById('add-client').addEventListener('click', async () => {
   loadClients();
 });
 
-// Borra un cliente
 async function deleteClient(id) {
   if (!confirm('¿Eliminar cliente?')) return;
-  const res = await fetch(`${API}/clientes/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/clientes/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadClients();
 }
@@ -382,10 +406,8 @@ async function deleteClient(id) {
 // VENTAS
 // ============================================================
 
-// Muestra las ventas (se crean desde el backend con su detalle)
 async function loadSales() {
-  const res = await fetch(`${API}/ventas`);
-  const { data } = await res.json();
+  const { data } = await api('/ventas');
   const tbody = document.getElementById('sales-body');
   tbody.innerHTML = '';
   data.forEach(v => {
@@ -404,23 +426,19 @@ async function loadSales() {
   });
 }
 
-// Borra una venta
 async function deleteSale(id) {
   if (!confirm('¿Eliminar venta?')) return;
-  const res = await fetch(`${API}/ventas/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+  const data = await api(`/ventas/${id}`, { method: 'DELETE' });
   if (!data.success) return alert(data.message);
   loadSales();
 }
 
 // ============================================================
-// INVENTARIO (movimientos)
+// INVENTARIO
 // ============================================================
 
-// Muestra el historial de movimientos
 async function loadInventory() {
-  const res = await fetch(`${API}/inventario`);
-  const { data } = await res.json();
+  const { data } = await api('/inventario');
   const tbody = document.getElementById('inventory-body');
   tbody.innerHTML = '';
   data.forEach(m => {
@@ -439,11 +457,9 @@ async function loadInventory() {
   });
 }
 
-// Botón "Registrar" movimiento (entrada / salida / ajuste)
 document.getElementById('add-move').addEventListener('click', async () => {
-  const res = await fetch(`${API}/inventario`, {
+  const data = await api('/inventario', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       producto_id: Number(document.getElementById('move-product').value),
       usuario_id: Number(document.getElementById('move-user').value),
@@ -452,13 +468,12 @@ document.getElementById('add-move').addEventListener('click', async () => {
       motivo: document.getElementById('move-reason').value.trim()
     })
   });
-  const data = await res.json();
   if (!data.success) return alert(data.message);
 
   document.getElementById('move-qty').value = '';
   document.getElementById('move-reason').value = '';
   loadInventory();
-  loadProducts(); // El stock de los productos cambió
+  loadProducts();
 });
 
 // ============================================================
@@ -472,14 +487,3 @@ const setup = async () => {
   await fillSelect('move-product', '/productos', 'id', 'nombre');
   await fillSelect('move-user', '/usuarios', 'id', 'nombre');
 };
-
-// Carga todo apenas abre la página
-setup().then(() => {
-  loadCategories();
-  loadProducts();
-  loadUsers();
-  loadProviders();
-  loadClients();
-  loadSales();
-  loadInventory();
-});

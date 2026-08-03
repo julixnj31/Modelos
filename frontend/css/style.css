@@ -48,3 +48,14 @@ th { background: #34495e; color: white; }
 
 /* La celda de acciones pone los botones uno al lado del otro */
 td.actions { display: flex; gap: 5px; }
+
+/* Pantalla de inicio de sesión: tarjeta centrada */
+#login-view { max-width: 400px; margin: 80px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+#login-view h2 { margin-bottom: 10px; }
+#login-view p { margin-bottom: 15px; color: #666; font-size: 14px; }
+#login-view .actions { flex-direction: column; }
+#login-error { color: #e74c3c; }
+
+/* Barra donde se ve quién entró y el botón Salir */
+.user-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.user-bar span { font-size: 14px; }

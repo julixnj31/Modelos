@@ -7,9 +7,25 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="app">
+  <!-- Pantalla de inicio de sesión (se ve primero, antes de la app) -->
+  <div id="login-view">
+    <h2>Iniciar sesión</h2>
+    <p>Usa un usuario de la base de datos, ej: admin@inventario.com / admin123</p>
+    <div class="actions">
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Contraseña">
+      <button id="login-btn">Entrar</button>
+    </div>
+    <p id="login-error"></p>
+  </div>
+
+  <div id="app" style="display:none">
     <header>
       <h1>Gestión de Inventario</h1>
+      <div class="user-bar">
+        <span id="user-info"></span>
+        <button id="logout-btn">Salir</button>
+      </div>
       <nav>
         <button class="tab active" data-tab="categories">Categorías</button>
         <button class="tab" data-tab="products">Productos</button>

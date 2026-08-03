@@ -16,6 +16,7 @@ import clientesRouter from "./routes/clientes.routes.js";
 import ventasRouter from "./routes/ventas.routes.js";
 import inventarioRouter from "./routes/inventario.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import { authGuard } from "./middleware/auth.js";
 
 // Se crea la aplicación Express (el servidor web)
 const app = express();
@@ -37,6 +38,10 @@ app.get('/', (req, res) => {
 
 // Ruta de acceso abierta a todos: iniciar sesión
 app.use("/login", authRouter);
+
+// Protege las rutas del sistema: sin un token válido, todas
+// responden 401 (No autorizado) y no dejan entrar.
+app.use(["/productos", "/categorias", "/usuarios", "/proveedores", "/clientes", "/ventas", "/inventario"], authGuard);
 
 // Aquí se "montan" todas las rutas del sistema
 // Cada una responde en su propio camino, ej: /productos, /ventas
